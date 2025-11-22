@@ -77,7 +77,6 @@ export default function Login() {
       ])
     ).start();
 
-    // cek apakah user sudah login + ada data di MMKV
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       const saved = await getLogin();
       if (user && saved && saved.uid === user.uid) {
