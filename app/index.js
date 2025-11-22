@@ -1,18 +1,22 @@
-import React, { useState, useEffect, useRef } from "react";
+import { LinearGradient } from "expo-linear-gradient";
+import { Link, useRouter } from "expo-router";
 import {
-  View,
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+import { useEffect, useRef, useState } from "react";
+import {
+  Animated,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
-  Platform,
-  Animated,
   useWindowDimensions,
+  View,
 } from "react-native";
-import { Link, useRouter } from "expo-router";
-import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../firebase";
-import { LinearGradient } from "expo-linear-gradient";
+import { clearLogin, getLogin, saveLogin } from "../mmkvStorage";
 
 export default function Login() {
   const router = useRouter();
@@ -29,30 +33,84 @@ export default function Login() {
   const bgPulse = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    // animasi kartu + background
     Animated.parallel([
-      Animated.timing(cardOpacity, { toValue: 1, duration: 400, useNativeDriver: true }),
-      Animated.spring(cardScale, { toValue: 1, friction: 6, useNativeDriver: true }),
+      Animated.timing(cardOpacity, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+      Animated.spring(cardScale, {
+        toValue: 1,
+        friction: 6,
+        useNativeDriver: true,
+      }),
     ]).start();
 
     Animated.loop(
       Animated.sequence([
-        Animated.timing(float, { toValue: -8, duration: 2000, useNativeDriver: true }),
-        Animated.timing(float, { toValue: 8, duration: 2000, useNativeDriver: true }),
+        Animated.timing(float, {
+          toValue: -8,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(float, {
+          toValue: 8,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
       ])
     ).start();
 
     Animated.loop(
       Animated.sequence([
-        Animated.timing(bgPulse, { toValue: 1, duration: 2500, useNativeDriver: true }),
-        Animated.timing(bgPulse, { toValue: 0, duration: 2500, useNativeDriver: true }),
+        Animated.timing(bgPulse, {
+          toValue: 1,
+          duration: 2500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(bgPulse, {
+          toValue: 0,
+          duration: 2500,
+          useNativeDriver: true,
+        }),
       ])
     ).start();
+
+    // cek apakah user sudah login + ada data di MMKV
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      const saved = getLogin();
+      if (user && saved && saved.uid === user.uid) {
+        // user masih punya session + data login tersimpan di MMKV
+        router.replace("/home");
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const login = async () => {
-    if (!email.trim() || !password) return alert("Email dan password wajib diisi");
+    if (!email.trim() || !password)
+      return alert("Email dan password wajib diisi");
+
     try {
-      await signInWithEmailAndPassword(auth, email.trim(), password);
+      const cred = await signInWithEmailAndPassword(
+        auth,
+        email.trim(),
+        password
+      );
+
+      const user = cred.user;
+
+      // simpan info login di MMKV (di sini kita kaitkan dengan Remember me)
+      if (rememberMe) {
+        saveLogin(user);
+      } else {
+        clearLogin();
+      }
+
       router.replace("/home");
     } catch (error) {
       alert(error.message);
@@ -69,8 +127,14 @@ export default function Login() {
     }
   };
 
-  const blobScale = bgPulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.15] });
-  const blobOpacity = bgPulse.interpolate({ inputRange: [0, 1], outputRange: [0.4, 0.8] });
+  const blobScale = bgPulse.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 1.15],
+  });
+  const blobOpacity = bgPulse.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.4, 0.8],
+  });
 
   return (
     <LinearGradient colors={["#020617", "#0b1020", "#020617"]} style={styles.root}>

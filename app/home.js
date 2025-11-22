@@ -1,19 +1,20 @@
-import React, { useState, useEffect, useRef } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Platform,
-  Animated,
-  ActivityIndicator,
-  useWindowDimensions,
-} from "react-native";
-import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { auth, db } from "../firebase";
+import { useRouter } from "expo-router";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
+import { useEffect, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  Animated,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from "react-native";
+import { auth, db } from "../firebase";
+import { clearLogin } from "../mmkvStorage";
 
 export default function Home() {
   const router = useRouter();
@@ -96,6 +97,7 @@ export default function Home() {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      clearLogin(); // HAPUS data login dari MMKV
       router.replace("/");
     } catch (e) {
       console.log(e);
@@ -154,7 +156,6 @@ export default function Home() {
           },
         ]}
       >
-
         <View style={styles.bannerRow}>
           <Text style={styles.bannerText}>Selamat datang, {displayName}</Text>
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -168,7 +169,6 @@ export default function Home() {
             isSmallScreen && styles.contentColumn,
           ]}
         >
-
           <View
             style={[
               styles.leftPanel,
