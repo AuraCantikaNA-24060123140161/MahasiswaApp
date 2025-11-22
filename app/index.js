@@ -103,7 +103,6 @@ export default function Login() {
 
       const user = cred.user;
 
-      // simpan info login di MMKV (kaitkan dengan Remember me)
       if (rememberMe) {
         await saveLogin(user);
       } else {
