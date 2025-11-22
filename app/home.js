@@ -97,7 +97,7 @@ export default function Home() {
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      clearLogin(); // HAPUS data login dari MMKV
+      await clearLogin();
       router.replace("/");
     } catch (e) {
       console.log(e);

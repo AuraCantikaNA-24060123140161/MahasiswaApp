@@ -78,10 +78,9 @@ export default function Login() {
     ).start();
 
     // cek apakah user sudah login + ada data di MMKV
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      const saved = getLogin();
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      const saved = await getLogin();
       if (user && saved && saved.uid === user.uid) {
-        // user masih punya session + data login tersimpan di MMKV
         router.replace("/home");
       }
     });
@@ -104,11 +103,11 @@ export default function Login() {
 
       const user = cred.user;
 
-      // simpan info login di MMKV (di sini kita kaitkan dengan Remember me)
+      // simpan info login di MMKV (kaitkan dengan Remember me)
       if (rememberMe) {
-        saveLogin(user);
+        await saveLogin(user);
       } else {
-        clearLogin();
+        await clearLogin();
       }
 
       router.replace("/home");
