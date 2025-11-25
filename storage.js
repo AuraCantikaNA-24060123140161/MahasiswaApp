@@ -1,9 +1,7 @@
-// storage.js
 import { Platform } from "react-native";
 
 let storage;
 
-// Di web, pakai localStorage biasa
 if (Platform.OS === "web") {
   storage = {
     set: (key, value) => {
@@ -24,7 +22,6 @@ if (Platform.OS === "web") {
     },
   };
 } else {
-  // Di Android/iOS, pakai MMKV beneran
   const { MMKV } = require("react-native-mmkv");
   storage = new MMKV();
 }

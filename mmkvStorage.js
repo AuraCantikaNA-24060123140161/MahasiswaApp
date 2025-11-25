@@ -1,4 +1,3 @@
-// mmkvStorage.js
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const LOGIN_KEY = "login";

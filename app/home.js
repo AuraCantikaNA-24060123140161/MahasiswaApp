@@ -13,7 +13,7 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
-import { auth, db } from "../firebase";
+import { auth, db } from "../firebase"; 
 import { clearLogin } from "../mmkvStorage";
 
 export default function Home() {
